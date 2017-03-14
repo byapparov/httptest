@@ -94,6 +94,13 @@ context("Status Codes")
 with_mock_API({
   test_that("Response status code can be set as parameter",{
     a <- GET("api/")
-    expect_identical(status_code(a), 403, "Mock context is Forbidden. Expect 403 code.")
+    expect_identical(status_code(a), 403, "Mock response status code is 403.")
   })
-}, 403)
+}, status_code = 403)
+
+with_mock_API({
+  test_that("Response content type can be set as parameter",{
+    a <- GET("api/")
+    expect_identical(a$headers$`Content-Type`, "text", "Mock response response content type is text.")
+  })
+}, content_type = "text")
