@@ -88,3 +88,12 @@ test_that("Path to the fake file is correct", {
   expect_identical(file, expect, "POST method without query string")
   
 })
+
+context("Status Codes")
+
+with_mock_API({
+  test_that("Response status code can be set as parameter",{
+    a <- GET("api/")
+    expect_identical(status_code(a), 403, "Mock context is Forbidden. Expect 403 code.")
+  })
+}, 403)
