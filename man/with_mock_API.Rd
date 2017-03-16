@@ -4,10 +4,14 @@
 \alias{with_mock_API}
 \title{Serve a mock API from files}
 \usage{
-with_mock_API(expr)
+with_mock_API(expr, status_code = 200, content_type = "application/json")
 }
 \arguments{
 \item{expr}{Code to run inside the fake context}
+
+\item{status_code}{Status code of the fake response to the call}
+
+\item{content_type}{Content type of the fake response}
 }
 \value{
 The result of \code{expr}

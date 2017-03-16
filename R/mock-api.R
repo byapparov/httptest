@@ -25,31 +25,36 @@
 #' "api/object1-b64371-POST.json". 
 #' 
 #' @param expr Code to run inside the fake context
+#' @param status_code Status code of the fake response to the call
+#' @param content_type Content type of the fake response
 #' @return The result of \code{expr}
 #' @export
-with_mock_API <- function (expr) {
+with_mock_API <- function (expr, status_code = 200, content_type = "application/json") {
     with_mock(
-        `httr:::request_perform`=mockRequest,
+        `httr:::request_perform`=makeMockRequest(status_code, content_type),
         `utils::download.file`=mockDownload,
         eval.parent(expr)
     )
 }
 
-mockRequest <- function (req, handle, refresh) {
+makeMockRequest <- function(status_code, content_type) {
+  mockRequest <- function (req, handle, refresh) {
     ## If there's a query, then req$url has been through build_url(parse_url())
     ## so it has grown a ":///" prefix. Prune that.
     req$url <- sub("^:///", "", req$url)
     f <- buildMockURL(req$url, req$method)
     if (file.exists(f)) {
-        return(fakeResponse(req$url, req$method,
-            content=readBin(f, "raw", 4096*32), ## Assumes mock is under 128K
-            status_code=200, headers=list(`Content-Type`="application/json")))
-            ## TODO: don't assume content-type
+      return(fakeResponse(req$url, 
+                          req$method,
+                          content=readBin(f, "raw", 4096 * 32), ## Assumes mock is under 128K
+                          status_code = status_code, 
+                          headers = list(`Content-Type` = content_type)))
     } else {
-        ## For ease of debugging if a file isn't found
-        req$url <- paste0(req$url, " (", f, ")")
-        return(stopRequest(req))
+      ## For ease of debugging if a file isn't found
+      req$url <- paste0(req$url, " (", f, ")")
+      return(stopRequest(req))
     }
+  }
 }
 
 #' Convert a mock "URL" to a file path
